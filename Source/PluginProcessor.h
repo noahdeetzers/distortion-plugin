@@ -69,6 +69,8 @@ private:
     juce::dsp::Compressor<float> compressor;
     juce::dsp::Chorus<float> chorus;
 
+    
+    double makeUpGain;
 
 
     juce::AudioProcessorValueTreeState::ParameterLayout createParameters();

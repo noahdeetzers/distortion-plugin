@@ -16,7 +16,9 @@ DeetzStortionAPVTSAudioProcessorEditor::DeetzStortionAPVTSAudioProcessorEditor (
     //background properties
     background_image = juce::Drawable::createFromImageData(BinaryData::background_image2_svg, BinaryData::background_image2_svgSize);
     addAndMakeVisible(*background_image);
+    
 
+    
     //Highpass
     mhighpassSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
     mhighpassSlider.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::TextBoxBelow, true, 50, 25);
@@ -69,6 +71,10 @@ DeetzStortionAPVTSAudioProcessorEditor::DeetzStortionAPVTSAudioProcessorEditor (
     mLearnMoreButton.setURL({ "http://www.juce.com" });
     addAndMakeVisible(mLearnMoreButton);
 
+    
+    //Auto makeup gain toggle
+    addAndMakeVisible(mMakeupGainToggle);
+    mMakeupGainToggle.setLookAndFeel(&buttonLNF);
 
     //Connecting attachments to components
     highpassSliderAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "HIGHPASSCUTOFF", mhighpassSlider);
@@ -77,6 +83,13 @@ DeetzStortionAPVTSAudioProcessorEditor::DeetzStortionAPVTSAudioProcessorEditor (
     dryWetSliderAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "DRYWET", mDryWetSlider);
     volumeSliderAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "VOLUME", mVolumeSlider);
     distortionTypeAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "DISTORTIONTYPE", mDistortionType);
+    
+    makeupGainAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts, "AUTOMAKEUPGAIN", mMakeupGainToggle);
+    
+    
+    
+    
+    
     setSize(900, 450);
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
@@ -111,6 +124,8 @@ void DeetzStortionAPVTSAudioProcessorEditor::resized()
     mVolumeSlider.setBounds(755, 200, 100, 100);
     mDistortionType.setBounds(312, 173, 126, 20);
 
+    mMakeupGainToggle.setBounds(700, 200, 50, 50);
+    
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
 }

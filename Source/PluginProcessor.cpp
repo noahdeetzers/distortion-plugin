@@ -160,6 +160,7 @@ void DeetzStortionAPVTSAudioProcessor::processBlock (juce::AudioBuffer<float>& b
     float dryWet = *apvts.getRawParameterValue("DRYWET");
     float volume = *apvts.getRawParameterValue("VOLUME");
     float distortionType = *apvts.getRawParameterValue("DISTORTIONTYPE");
+    bool makeupGainEngaged = *apvts.getRawParameterValue("AUTOMAKEUPGAIN");
    
     //FILTER
     highPass.setCutoffFrequency(highPassCutoff);
@@ -191,35 +192,11 @@ void DeetzStortionAPVTSAudioProcessor::processBlock (juce::AudioBuffer<float>& b
     auto context = juce::dsp::ProcessContextReplacing<float>(blockOuput);//audioblock
     highPass.process(context);
     lowPass.process(context);
-   // chorus.process(context);
-    
 
-    //old
-    /*
-    for (int channel = 0; channel < blockOuput.getNumChannels(); ++channel)//    for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    {
-        auto* channelData = buffer.getWritePointer(channel);
-        for (int sample = 0; sample < blockOuput.getNumSamples(); ++sample)
-        {
-            // old algorithm
-             float cleanSig = *channelData; //*channeldata
-
-             *channelData *= drive;
-
-  //           *channelData = highPass.processSample(channel, *channelData);
-                                                                                                                        //  /2
-             *channelData = (((((2.0f / M_PI) * atan(*channelData)) * (dryWet/100.0f)) + (cleanSig * (1.0f - (dryWet/100.0f)))) ) * juce::Decibels::decibelsToGain(volume);
-
-             *channelData++;
-        }
-    }
-    */
-
-    //new
     
     for (int channel = 0; channel < blockOuput.getNumChannels(); channel++) {
         for (int sample = 0; sample < blockOuput.getNumSamples(); sample++) {
-
+            
             float in = blockOuput.getSample(channel, sample);
             float cleanSig = in;
             //Distortion Type
@@ -295,7 +272,20 @@ void DeetzStortionAPVTSAudioProcessor::processBlock (juce::AudioBuffer<float>& b
 
             }
             out = (((out * (dryWet / 100.0f)) + (cleanSig * (1.0f - (dryWet / 100.0f)))) * juce::Decibels::decibelsToGain(volume));
-            blockOuput.setSample(channel, sample, out);
+            
+            
+            if (makeupGainEngaged)
+            {
+                //Automatic Gain Comp
+                makeUpGain = pow(drive, 0.65);
+                out /= makeUpGain;
+                blockOuput.setSample(channel, sample, out);
+            }
+            
+            else
+            {
+                blockOuput.setSample(channel, sample, out);
+            }
         }
     }
     oversampling->processSamplesDown(blockInput);
@@ -359,6 +349,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout DeetzStortionAPVTSAudioProce
     params.push_back(std::make_unique<juce::AudioParameterFloat>("DRYWET", "DryWet", 1.0f,100.0f, 100.0f));
     params.push_back(std::make_unique<juce::AudioParameterFloat>("VOLUME", "Volume", -60.0f,1.0f, 1.0f));
     params.push_back(std::make_unique<juce::AudioParameterInt>("DISTORTIONTYPE", "DistortionType",1,5,1));
+    params.push_back(std::make_unique<juce::AudioParameterBool>("AUTOMAKEUPGAIN", "AutoMakeupGain",false));
+    
 
     return { params.begin(), params.end()};
 }

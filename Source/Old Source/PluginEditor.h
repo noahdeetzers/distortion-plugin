@@ -52,38 +52,10 @@ public:
     {
         setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentBlack);
         setColour(juce::Slider::textBoxTextColourId, juce::Colours::lightgrey);
+
+
     }
 };
-
-class ButtonLNF : public juce::LookAndFeel_V4
-{
-public:
-    void drawToggleButton(juce::Graphics& g, juce::ToggleButton& button, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override
-    {
-        const auto buttonSkin = juce::Drawable::createFromImageData(BinaryData::faderMovable_svg, BinaryData::faderMovable_svgSize);
-        auto buttonArea = button.getLocalBounds();
-
-        auto edge = 2;
-
-        buttonArea.removeFromLeft (edge);
-        buttonArea.removeFromTop (edge);
-        
-        auto offset = shouldDrawButtonAsDown ? -edge / 2 : -edge;
-        buttonArea.translate (offset, offset);
-        
-        if (button.getToggleState())
-        {
-            buttonSkin->drawWithin(g, buttonArea.toFloat(), juce::RectanglePlacement::centred, 1.0f);
-        }
-        else
-        {
-            buttonSkin->drawWithin(g, buttonArea.toFloat(), juce::RectanglePlacement::centred, 0.7f);
-        }
-    
-    }
-
-};
-
 
 //==============================================================================
 /**
@@ -106,7 +78,6 @@ private:
     //instansiating the slider obj
     OtherLookAndFeel sliderLookAndFeel;
     DistLNF distLNF;
-    ButtonLNF buttonLNF;
 
     //Instansiating the sliders
     juce::Slider mDriveSlider;
@@ -117,10 +88,14 @@ private:
     juce::Slider mlowpassSlider;
     juce::Slider mhighpassSlider;
     
-    juce::ToggleButton mMakeupGainToggle;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> makeupGainAttachment;
-    
     juce::HyperlinkButton mLearnMoreButton;
+    
+    juce::DrawableImage buttonImage;
+    juce::ToggleButton mGainCompButton;
+    
+    
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> gainCompAttachment;
+    
 
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> lowpassSliderAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> highpassSliderAttachment;
