@@ -11,6 +11,7 @@
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 
+//Distortion slider LookAndFeel class
 class DistLNF : public juce::LookAndFeel_V4
 {
 public:
@@ -24,6 +25,7 @@ public:
     }
 };
 
+//Other LookAndFeel class for the rotary knobs
 class OtherLookAndFeel : public juce::LookAndFeel_V4
 {
 public:
@@ -37,15 +39,7 @@ public:
     {
         const auto gainSkin = juce::Drawable::createFromImageData(BinaryData::SliderClear_svg, BinaryData::SliderClear_svgSize);
         juce::AffineTransform rotator;
-        if (!slider.isMouseOverOrDragging())
-        {
-           // gainSkin->draw(g, 1.f, juce::AffineTransform());
-        }
-        else
-        {
-           // gainSkin->draw(g, 1.f, juce::AffineTransform());
-        }
-        //gainSkin->draw(g, 1.0f, rotator.rotated((float)sliderPosProportional * rotaryEndAngle, gainSkin->getWidth() * 0.5f, gainSkin->getHeight() * 0.5f));
+        
         gainSkin->draw(g, 1.0f, rotator.rotated((float)sliderPosProportional * rotaryEndAngle, (float)(gainSkin->getWidth() / 2), (float)(gainSkin->getHeight() / 2)));
     }
     OtherLookAndFeel()
@@ -55,14 +49,14 @@ public:
     }
 };
 
+//Button LookAndFeel class for the buttons
 class ButtonLNF : public juce::LookAndFeel_V4
 {
 public:
     void drawToggleButton(juce::Graphics& g, juce::ToggleButton& button, bool shouldDrawButtonAsHighlighted, bool shouldDrawButtonAsDown) override
     {
-        const auto buttonSkin = juce::Drawable::createFromImageData(BinaryData::faderMovable_svg, BinaryData::faderMovable_svgSize);
+        const auto buttonSkin = juce::Drawable::createFromImageData(BinaryData::rect833_png, BinaryData::rect833_pngSize);
         auto buttonArea = button.getLocalBounds();
-
         auto edge = 2;
 
         buttonArea.removeFromLeft (edge);
@@ -77,11 +71,9 @@ public:
         }
         else
         {
-            buttonSkin->drawWithin(g, buttonArea.toFloat(), juce::RectanglePlacement::centred, 0.7f);
+            buttonSkin->drawWithin(g, buttonArea.toFloat(), juce::RectanglePlacement::centred, 0.3f);
         }
-    
     }
-
 };
 
 
@@ -100,35 +92,37 @@ public:
 
 private:
 
-    //instansiating the background obj
+    // Instantiating the background obj
     std::unique_ptr<juce::Drawable> background_image;
     
-    //instansiating the slider obj
+    // Instantiating the slider obj
     OtherLookAndFeel sliderLookAndFeel;
     DistLNF distLNF;
     ButtonLNF buttonLNF;
 
-    //Instansiating the sliders
+    // Instantiating the sliders
     juce::Slider mDriveSlider;
     juce::Slider mDryWetSlider;
     juce::Slider mVolumeSlider;
     juce::Slider mDistortionType;
-
     juce::Slider mlowpassSlider;
     juce::Slider mhighpassSlider;
     
+    // Instantiating the buttons
     juce::ToggleButton mMakeupGainToggle;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> makeupGainAttachment;
-    
     juce::HyperlinkButton mLearnMoreButton;
 
+    
+    // Instantiating the unique pointers that hold the various button and slider data. This data then gets passed into the APVTS object for state management
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> makeupGainAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> lowpassSliderAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> highpassSliderAttachment;
-
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> driveSliderAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> dryWetSliderAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> volumeSliderAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> distortionTypeAttachment;
+    
+    
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     DeetzStortionAPVTSAudioProcessor& audioProcessor;

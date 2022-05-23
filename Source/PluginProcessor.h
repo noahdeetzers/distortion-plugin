@@ -67,7 +67,6 @@ private:
     juce::dsp::StateVariableTPTFilter<float> highPass;
     juce::dsp::StateVariableTPTFilter<float> lowPass;
     juce::dsp::Compressor<float> compressor;
-    juce::dsp::Chorus<float> chorus;
 
     
     double makeUpGain;

@@ -25,7 +25,6 @@ DeetzStortionAPVTSAudioProcessor::DeetzStortionAPVTSAudioProcessor()
 #endif
 {
     apvts.state = juce::ValueTree("savedParams");
-
     oversampling.reset(new juce::dsp::Oversampling<float>(2, 2, juce::dsp::Oversampling<float>::filterHalfBandPolyphaseIIR, false));
 
 }
@@ -100,6 +99,8 @@ void DeetzStortionAPVTSAudioProcessor::changeProgramName (int index, const juce:
 //==============================================================================
 void DeetzStortionAPVTSAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
+    
+    //Initializing various DSP blocks and other components 
     oversampling->reset();
     oversampling->initProcessing(static_cast<size_t> (samplesPerBlock));
 
@@ -110,7 +111,6 @@ void DeetzStortionAPVTSAudioProcessor::prepareToPlay (double sampleRate, int sam
     highPass.prepare(spec);
     lowPass.prepare(spec);
     compressor.prepare(spec);
-    chorus.prepare(spec);
     reset();
 
 
@@ -174,26 +174,22 @@ void DeetzStortionAPVTSAudioProcessor::processBlock (juce::AudioBuffer<float>& b
     compressor.setRatio(4.0f);
     compressor.setThreshold(-4.0f);
 
-    //CHORUS
-    chorus.setCentreDelay(7.5f);
-    chorus.setDepth(0.2);
-    chorus.setFeedback(0.2);
-    chorus.setMix(1);
-
-    for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-        buffer.clear (i, 0, buffer.getNumSamples());
-
+    
     //OVERSAMPLING
     juce::dsp::AudioBlock<float> blockInput(buffer);
     juce::dsp::AudioBlock<float> blockOuput = oversampling->processSamplesUp(blockInput);
 
+    for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
+        buffer.clear (i, 0, buffer.getNumSamples());
+
 
     auto audioBlock = juce::dsp::AudioBlock<float>(buffer);
-    auto context = juce::dsp::ProcessContextReplacing<float>(blockOuput);//audioblock
+    auto context = juce::dsp::ProcessContextReplacing<float>(blockOuput);
     highPass.process(context);
     lowPass.process(context);
 
     
+    //Messy ass signal processing block because it was my first coded plugin 8^/
     for (int channel = 0; channel < blockOuput.getNumChannels(); channel++) {
         for (int sample = 0; sample < blockOuput.getNumSamples(); sample++) {
             
@@ -317,7 +313,7 @@ void DeetzStortionAPVTSAudioProcessor::getStateInformation (juce::MemoryBlock& d
 
 void DeetzStortionAPVTSAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-
+    // Storing the parameters for recall in XML
     std::unique_ptr<juce::XmlElement> savedParameters(getXmlFromBinary(data, sizeInBytes));
 
     if (savedParameters != nullptr)
@@ -340,6 +336,7 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 
 juce::AudioProcessorValueTreeState::ParameterLayout DeetzStortionAPVTSAudioProcessor::createParameters()
 {
+    // Management of the APVTS object storing and releasing plugin parameter data
     std::vector < std::unique_ptr < juce::RangedAudioParameter>> params;
 
     params.push_back(std::make_unique<juce::AudioParameterFloat>("HIGHPASSCUTOFF", "HighPassCutoff",20.0f,5000.0f, 1.0f));
@@ -360,5 +357,4 @@ void DeetzStortionAPVTSAudioProcessor::reset()
     highPass.reset();
     lowPass.reset();
     compressor.reset();
-    chorus.reset();
 }

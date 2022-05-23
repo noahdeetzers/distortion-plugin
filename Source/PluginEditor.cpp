@@ -14,10 +14,8 @@ DeetzStortionAPVTSAudioProcessorEditor::DeetzStortionAPVTSAudioProcessorEditor (
     : AudioProcessorEditor (&p), audioProcessor (p)
 {
     //background properties
-    background_image = juce::Drawable::createFromImageData(BinaryData::background_image2_svg, BinaryData::background_image2_svgSize);
+    background_image = juce::Drawable::createFromImageData(BinaryData::pluginBackground_svg, BinaryData::pluginBackground_svgSize);
     addAndMakeVisible(*background_image);
-    
-
     
     //Highpass
     mhighpassSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
@@ -27,6 +25,7 @@ DeetzStortionAPVTSAudioProcessorEditor::DeetzStortionAPVTSAudioProcessorEditor (
     mhighpassSlider.setRotaryParameters(juce::degreesToRadians(0.f), juce::degreesToRadians(220.f), true);
     mhighpassSlider.setSkewFactor(0.5, false);
     addAndMakeVisible(mhighpassSlider);
+    
     //Lowpass
     mlowpassSlider.setSliderStyle(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag);
     mlowpassSlider.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::TextBoxBelow, true, 50, 25);
@@ -43,8 +42,7 @@ DeetzStortionAPVTSAudioProcessorEditor::DeetzStortionAPVTSAudioProcessorEditor (
     mDriveSlider.setRotaryParameters(juce::degreesToRadians(0.f), juce::degreesToRadians(220.f), true);
     mDriveSlider.setSkewFactor(0.5, false);
     addAndMakeVisible(mDriveSlider);
-
-
+    
     //DistortionType
     mDistortionType.setSliderStyle(juce::Slider::SliderStyle::LinearHorizontal);
     mDistortionType.setTextBoxStyle(juce::Slider::TextEntryBoxPosition::TextBoxBelow,false,100,50);
@@ -71,31 +69,23 @@ DeetzStortionAPVTSAudioProcessorEditor::DeetzStortionAPVTSAudioProcessorEditor (
     mLearnMoreButton.setURL({ "http://www.juce.com" });
     addAndMakeVisible(mLearnMoreButton);
 
-    
     //Auto makeup gain toggle
     addAndMakeVisible(mMakeupGainToggle);
     mMakeupGainToggle.setLookAndFeel(&buttonLNF);
 
-    //Connecting attachments to components
+    
+    //Connecting the attachments to components
     highpassSliderAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "HIGHPASSCUTOFF", mhighpassSlider);
     lowpassSliderAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "LOWPASSCUTOFF", mlowpassSlider);
     driveSliderAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "DRIVE", mDriveSlider);
     dryWetSliderAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "DRYWET", mDryWetSlider);
     volumeSliderAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "VOLUME", mVolumeSlider);
     distortionTypeAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "DISTORTIONTYPE", mDistortionType);
-    
     makeupGainAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts, "AUTOMAKEUPGAIN", mMakeupGainToggle);
+
     
-    
-    
-    
-    
+    //Set the size of the plugin window
     setSize(900, 450);
-    // Make sure that before the constructor has finished, you've set the
-    // editor's size to whatever you need it to be.
-
-
-
 }
 
 
@@ -107,14 +97,11 @@ DeetzStortionAPVTSAudioProcessorEditor::~DeetzStortionAPVTSAudioProcessorEditor(
 //==============================================================================
 void DeetzStortionAPVTSAudioProcessorEditor::paint (juce::Graphics& g)
 {
-/*
-    const auto svg = juce::Drawable::createFromImageData(BinaryData::deetzStortion_GUI_svg, BinaryData::deetzStortion_GUI_svgSize);
-    svg->draw(g, 1.0);
-    */
 }
 
 void DeetzStortionAPVTSAudioProcessorEditor::resized()
 {
+    //Setting the bounds of the objects in the GUI
     background_image->setBounds(-1,-12,900,450);
     mhighpassSlider.setBounds(60-2, 200, 100,100);
     mlowpassSlider.setBounds(160-1, 200, 100, 100);
@@ -123,9 +110,5 @@ void DeetzStortionAPVTSAudioProcessorEditor::resized()
     mDryWetSlider.setBounds(552,200, 100, 100);
     mVolumeSlider.setBounds(755, 200, 100, 100);
     mDistortionType.setBounds(312, 173, 126, 20);
-
-    mMakeupGainToggle.setBounds(700, 200, 50, 50);
-    
-    // This is generally where you'll want to lay out the positions of any
-    // subcomponents in your editor..
+    mMakeupGainToggle.setBounds(739, 139, 11, 11);
 }
